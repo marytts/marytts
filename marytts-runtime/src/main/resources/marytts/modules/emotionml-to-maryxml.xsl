@@ -1,10 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  EmotionML-to-MaryXML transformation.
+  
+  PATCH v5.2-java17: Removed Xalan extension dependency (helpers:*)
+  to support Java 17+ which has a stricter XSLT processor.
+  
+  The helper functions helpers:declaredCategoryVocabulary(.) and 
+  helpers:declaredDimensionVocabulary(.) are replaced with standard
+  XPath expressions (emo:category/@vocabulary and emo:dimension/@vocabulary).
+  
+  helpers:expressedThrough(., 'voice', true()) is replaced with a simpler
+  check for emo:category children.
+  
+  See: https://github.com/theWatcherNineteen83/marytts/pull/1
+-->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0"
                 xmlns="http://mary.dfki.de/2002/MaryXML"
                 xmlns:emo="http://www.w3.org/2009/10/emotionml"
-                xmlns:helpers="xalan://emotionml.xslt.Helpers"
-                exclude-result-prefixes="emo helpers">
+                exclude-result-prefixes="emo">
   <xsl:output method="xml"
               encoding="UTF-8"
               indent="yes"/>
@@ -31,13 +45,14 @@
 <!-- Use the "style" attribute of MaryXML's <prosody> attribute -->
 <!-- to express emotion categories. Works only with certain voices -->
 <!-- (as of 2012, dfki-pavoque-styles) -->
-<xsl:template match="emo:emotion[emo:category and helpers:expressedThrough(., 'voice', true())]">
+<xsl:template match="emo:emotion[emo:category]">
   <xsl:variable name="cat" select="emo:category/@name"/>
   <xsl:choose>
     <xsl:when test="$voice='dfki-pavoque-styles'">
 	  <xsl:variable name="style">
 	    <xsl:choose>
-	      <xsl:when test="helpers:declaredCategoryVocabulary(.) = 'http://www.w3.org/TR/emotion-voc/xml#big6'">
+	      <!-- Java 17+ fix: Use standard @vocabulary attribute instead of helpers:declaredCategoryVocabulary() -->
+	      <xsl:when test="emo:category/@vocabulary = 'http://www.w3.org/TR/emotion-voc/xml#big6' or emo:category/@set = 'http://www.w3.org/TR/emotion-voc/xml#big6'">
 	        <xsl:choose>
 	          <xsl:when test="$cat='anger'">angry</xsl:when>
 	          <xsl:when test="$cat='disgust'">angry</xsl:when>
@@ -47,7 +62,7 @@
 	          <xsl:when test="$cat='surprise'">neutral</xsl:when>
 	        </xsl:choose>
 	      </xsl:when>
-	      <xsl:when test="helpers:declaredCategoryVocabulary(.) = 'http://www.w3.org/TR/emotion-voc/xml#everyday-categories'">
+	      <xsl:when test="emo:category/@vocabulary = 'http://www.w3.org/TR/emotion-voc/xml#everyday-categories' or emo:category/@set = 'http://www.w3.org/TR/emotion-voc/xml#everyday-categories'">
 	        <xsl:choose>
 	          <xsl:when test="$cat='affectionate'">happy</xsl:when>
 	          <xsl:when test="$cat='afraid'">neutral</xsl:when>
@@ -84,7 +99,7 @@
     <xsl:otherwise><!-- A voice without different styles -->
       <xsl:variable name="arousal">
 	    <xsl:choose>
-	      <xsl:when test="helpers:declaredCategoryVocabulary(.) = 'http://www.w3.org/TR/emotion-voc/xml#big6'">
+	      <xsl:when test="emo:category/@vocabulary = 'http://www.w3.org/TR/emotion-voc/xml#big6' or emo:category/@set = 'http://www.w3.org/TR/emotion-voc/xml#big6'">
 	        <xsl:choose>
 	          <xsl:when test="$cat='anger'">0.9</xsl:when>
 	          <xsl:when test="$cat='disgust'">0.8</xsl:when>
@@ -94,7 +109,7 @@
 	          <xsl:when test="$cat='surprise'">0.7</xsl:when>
 	        </xsl:choose>
 	      </xsl:when>
-	      <xsl:when test="helpers:declaredCategoryVocabulary(.) = 'http://www.w3.org/TR/emotion-voc/xml#everyday-categories'">
+	      <xsl:when test="emo:category/@vocabulary = 'http://www.w3.org/TR/emotion-voc/xml#everyday-categories' or emo:category/@set = 'http://www.w3.org/TR/emotion-voc/xml#everyday-categories'">
 	        <xsl:choose>
 	          <xsl:when test="$cat='affectionate'">0.4</xsl:when>
 	          <xsl:when test="$cat='afraid'">0.3</xsl:when>
@@ -135,7 +150,8 @@
 <!-- Using the PAD vocabulary as the standard three-dimensional vocabulary. -->
 <xsl:template match="emo:emotion[emo:dimension]">
   <xsl:choose>
-    <xsl:when test="helpers:declaredDimensionVocabulary(.) = 'http://www.w3.org/TR/emotion-voc/xml#pad-dimensions'">
+    <!-- Java 17+ fix: Use standard @vocabulary attribute instead of helpers:declaredDimensionVocabulary() -->
+    <xsl:when test="emo:dimension/@vocabulary = 'http://www.w3.org/TR/emotion-voc/xml#pad-dimensions' or emo:dimension/@set = 'http://www.w3.org/TR/emotion-voc/xml#pad-dimensions'">
       <xsl:variable name="arousal" select="emo:dimension[@name='arousal']/@value" />
       <xsl:variable name="pleasure" select="emo:dimension[@name='pleasure']/@value" />
       <xsl:variable name="dominance" select="emo:dimension[@name='dominance']/@value" />
@@ -145,7 +161,7 @@
         <xsl:with-param name="dominance" select="$dominance"/>
       </xsl:call-template>
     </xsl:when>
-    <xsl:when test="helpers:declaredDimensionVocabulary(.) = 'http://www.w3.org/TR/emotion-voc/xml#fsre-dimensions'">
+    <xsl:when test="emo:dimension/@vocabulary = 'http://www.w3.org/TR/emotion-voc/xml#fsre-dimensions' or emo:dimension/@set = 'http://www.w3.org/TR/emotion-voc/xml#fsre-dimensions'">
       <xsl:variable name="arousal" select="emo:dimension[@name='arousal']/@value" />
       <xsl:variable name="pleasure" select="emo:dimension[@name='valence']/@value" />
       <xsl:variable name="dominance" select="emo:dimension[@name='potency']/@value" />
@@ -186,10 +202,7 @@
     <xsl:variable name="pitch-dynamics"
     select="format-number(round(-15 + 0.3*$activation - 0.3*$power), '+#;-#')"/>
 
-    <!-- Range in semitones -->
     <xsl:variable name="range" select="format-number(4 + 0.04*$activation, '#.##')"/>
-
-
 
     <xsl:variable name="accent-prominence"
     select="format-number(round(0.5*$activation - 0.5*$evaluation), '+#;-#')"/>
@@ -232,32 +245,14 @@
     <xsl:variable name="volume"
     select="round(50 + 0.33*$activation)"/>
     
-    
     <xsl:variable name="globalslope" select="round(0.12*$power)"/>
-    
     <xsl:variable name="contour" select="concat('(0%,', format-number($globalslope, '+#;-#'), 'st)',
                                               '(100%,', format-number(-$globalslope, '+#;-#'), 'st)')"/>
 
-	<!-- Prosody attributes which cannot be realized with 2012 voices commented out -->
 	<p>
       <prosody>
         <xsl:attribute name="pitch"><xsl:value-of select="$pitch"/>%</xsl:attribute>
-<!--         <xsl:attribute name="pitch-dynamics"><xsl:value-of select="$pitch-dynamics"/>%</xsl:attribute> -->
-<!--         <xsl:attribute name="range"><xsl:value-of select="$range"/>st</xsl:attribute> -->
-<!--         <xsl:attribute name="range-dynamics"><xsl:value-of select="$range-dynamics"/>%</xsl:attribute> -->
-<!--         <xsl:attribute name="preferred-accent-shape"><xsl:value-of select="$preferred-accent-shape"/></xsl:attribute> -->
-<!--         <xsl:attribute name="accent-slope"><xsl:value-of select="$accent-slope"/>%</xsl:attribute> -->
-<!--         <xsl:attribute name="accent-prominence"><xsl:value-of select="$accent-prominence"/>%</xsl:attribute> -->
-<!--         <xsl:attribute name="preferred-boundary-type"><xsl:value-of select="$preferred-boundary-type"/></xsl:attribute> -->
         <xsl:attribute name="rate"><xsl:value-of select="$rate"/>%</xsl:attribute>
-<!--         <xsl:attribute name="number-of-pauses"><xsl:value-of select="$number-of-pauses"/>%</xsl:attribute> -->
-<!--         <xsl:attribute name="pause-duration"><xsl:value-of select="$pause-duration"/>%</xsl:attribute> -->
-<!--         <xsl:attribute name="vowel-duration"><xsl:value-of select="$vowel-duration"/>%</xsl:attribute> -->
-<!--         <xsl:attribute name="nasal-duration"><xsl:value-of select="$nasal-duration"/>%</xsl:attribute> -->
-<!--         <xsl:attribute name="liquid-duration"><xsl:value-of select="$liquid-duration"/>%</xsl:attribute> -->
-<!--         <xsl:attribute name="plosive-duration"><xsl:value-of select="$plosive-duration"/>%</xsl:attribute> -->
-<!--         <xsl:attribute name="fricative-duration"><xsl:value-of select="$fricative-duration"/>%</xsl:attribute> -->
-<!--         <xsl:attribute name="volume"><xsl:value-of select="$volume"/></xsl:attribute> -->
 		<xsl:attribute name="contour"><xsl:value-of select="$contour"/></xsl:attribute>
         <xsl:apply-templates/>
       </prosody>
